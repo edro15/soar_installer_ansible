@@ -1,0 +1,101 @@
+- name: FDSE SOAR Installer
+  hosts: nova_soar
+  tasks:
+    - name: Disabling SELinux state
+      become: yes
+      become_user: root
+      selinux:
+        state: disabled
+
+    - name: Reboot
+      tags: reboot
+      become: yes
+      become_user: root
+      shell: "sleep 5 && reboot"
+      async: 1
+      poll: 0
+
+    - name: Wait 300 seconds, but only start checking after 20 seconds
+      ansible.builtin.wait_for_connection:
+        delay: 20
+        timeout: 300
+
+    - name: Install yum packages
+      become: yes
+      become_user: root
+      ansible.builtin.yum:
+        name:
+          - ntpdate
+          - libevent
+          - libicu
+          - c-ares
+          - bind-utils
+          - java-1.8.0-openjdk-headless
+          - mailcap
+          - fontconfig
+          - ntpdate
+          - perl
+          - rsync
+          - xmlsec1
+          - xmlsec1-openssl
+          - libxslt
+          - ntp
+          - zip
+          - net-tools
+          - policycoreutils-python
+          - libxml2
+          - libcurl
+          - gnutls
+        state: latest
+
+    - name: Create Unprivileged user for SOAR
+      become: yes
+      become_user: root
+      ansible.builtin.user:
+        name: soaruser
+        comment: Splunk SOAR user
+        password: $6$l5wq8qoIHx6YVsfv$mc6B0tb7JliySGNlYgEdqfUmtni2glitjWyTdqBc5ns9sZ/OgiZh0i7GeLY3HoE/ryE2tnWUvQ4.VHbA3BfCl0
+        create_home: true
+
+    - name: Add soaruser to group wheel
+      become: yes
+      become_user: root
+      ansible.builtin.user:
+        name: soaruser
+        groups: wheel
+        append: yes
+
+    - name: Create phantom limits file
+      become: yes
+      become_user: root
+      copy:
+        src: ./25-phantom-limits.conf
+        dest: /etc/security/limits.d/25-phantom-limits.conf      
+
+    - name: Create SOAR installation folder
+      become: yes
+      become_user: root
+      ansible.builtin.file:
+        path: /opt/soar
+        state: directory
+        owner: soaruser
+        mode: '0755'
+
+    - name: Apply the new Security Settings
+      become: yes
+      become_user: root
+      shell: "sysctl --system"  
+      register: patchresult
+
+    - name: Copy and extract phantom tar package
+      become: yes
+      become_user: soaruser
+      ansible.builtin.unarchive:
+        src: ./splunk_soar-unpriv-5.4.0.101028-51471342-el7-x86_64.tar
+        dest: /tmp/
+
+    - name: Run installer
+      become: yes
+      become_user: soaruser
+      shell: "/tmp/splunk-soar/soar-install --splunk-soar-home /opt/soar/ --ignore-warnings -y"
+
