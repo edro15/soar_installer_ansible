@@ -1,0 +1,5 @@
+all:
+  hosts:
+    <HOST ADDRESS GOES HERE>
+  vars:
+    ansible_user: <REMOTE HOST USERNAME GOES HERE>

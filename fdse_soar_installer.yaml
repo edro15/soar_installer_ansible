@@ -1,6 +1,8 @@
 - name: FDSE SOAR Installer
-  hosts: nova_soar
-  tasks:
+  hosts: all
+  vars_files:
+    - vars.yaml
+  tasks:    
     - name: Disabling SELinux state
       become: yes
       become_user: root
@@ -54,7 +56,7 @@
       ansible.builtin.user:
         name: soaruser
         comment: Splunk SOAR user
-        password: $6$l5wq8qoIHx6YVsfv$mc6B0tb7JliySGNlYgEdqfUmtni2glitjWyTdqBc5ns9sZ/OgiZh0i7GeLY3HoE/ryE2tnWUvQ4.VHbA3BfCl0
+        password: '{{ vars.soaruser_password }}'
         create_home: true
 
     - name: Add soaruser to group wheel
@@ -87,11 +89,18 @@
       shell: "sysctl --system"  
       register: patchresult
 
-    - name: Copy and extract phantom tar package
+    - name: Download phantom tar package
+      become: yes
+      become_user: soaruser
+      ansible.builtin.get_url:
+        url: '{{ vars.soar_download_url }}'
+        dest: /tmp/splunk-soar.tar
+
+    - name: extract phantom tar package
       become: yes
       become_user: soaruser
       ansible.builtin.unarchive:
-        src: ./splunk_soar-unpriv-5.4.0.101028-51471342-el7-x86_64.tar
+        src: /tmp/splunk-soar.tar
         dest: /tmp/
 
     - name: Run installer
