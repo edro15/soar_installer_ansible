@@ -36,3 +36,7 @@ This ansible playbook installs Splunk SOAR on remote machines running Centos7.
 	
 	```ansible-playbook -i hosts.yaml fdse_soar_installer.yaml```
 
+- Wait for it :)
+
+	By default, SOAR will run on port 8443 over HTTPS.
+	The *default login credentials* are `admin/password`
