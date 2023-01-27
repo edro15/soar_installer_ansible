@@ -56,7 +56,7 @@
       ansible.builtin.user:
         name: soaruser
         comment: Splunk SOAR user
-        password: '{{ vars.soaruser_password }}'
+        password: "{{ vars.soaruser_password | password_hash('sha512') }}"
         create_home: true
 
     - name: Add soaruser to group wheel
@@ -88,20 +88,27 @@
       become_user: root
       shell: "sysctl --system"  
       register: patchresult
+    
+    - name: Install and upgrade pip
+      become: yes
+      become_user: root
+      ansible.builtin.pip:
+        name: passlib
+        executable: pip3
 
     - name: Download phantom tar package
       become: yes
       become_user: soaruser
       ansible.builtin.get_url:
         url: '{{ vars.soar_download_url }}'
-        dest: /tmp/splunk-soar.tar
+        dest: /tmp/phantom.zip
 
     - name: extract phantom tar package
       become: yes
       become_user: soaruser
       ansible.builtin.unarchive:
         remote_src: true
-        src: /tmp/splunk-soar.tar
+        src: /tmp/phantom.zip
         dest: /tmp/
 
     - name: Run installer
