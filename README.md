@@ -40,7 +40,7 @@ This ansible playbook installs Splunk SOAR on remote machines running Centos7.
 	 - name: Run installer
 		become: yes
 		become_user: soaruser
-		shell: "/tmp/phantom_tar_install.sh install'
+		shell: "/tmp/phantom_tar_install.sh install"
 	```
 	
 	```ansible-playbook -i hosts.yaml fdse_soar_installer.yaml```
