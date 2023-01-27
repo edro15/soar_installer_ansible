@@ -89,7 +89,7 @@
       shell: "sysctl --system"  
       register: patchresult
     
-    - name: Install and upgrade pip
+    - name: Install python passlib module
       become: yes
       become_user: root
       ansible.builtin.pip:
