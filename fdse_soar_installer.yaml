@@ -101,14 +101,14 @@
       become_user: soaruser
       ansible.builtin.get_url:
         url: '{{ vars.soar_download_url }}'
-        dest: /tmp/phantom.zip
+        dest: /tmp/phantom.tar
 
     - name: extract phantom tar package
       become: yes
       become_user: soaruser
       ansible.builtin.unarchive:
         remote_src: true
-        src: /tmp/phantom.zip
+        src: /tmp/phantom.tar
         dest: /tmp/
 
     - name: Run installer
