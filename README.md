@@ -17,7 +17,7 @@ This ansible playbook installs Splunk SOAR on remote machines running Centos7.
 	vars.yaml:
 
 		- SOAR image URL (get the "authenticated" download link from: https://my.phantom.us/downloads/)
-		- desired password for `soaruser`: default is `soaruser` and it should be encrypted before it is passed on to ansible
+		- desired password for `soaruser`: default is `soaruser`
 	
 
 
@@ -33,6 +33,15 @@ This ansible playbook installs Splunk SOAR on remote machines running Centos7.
 
 
 - Run the playbook
+
+	 - Hint! - be aware what version of SOAR are you installing, if this is under 5.3v `Run installer` task should look like that:
+
+	```bash
+	 - name: Run installer
+		become: yes
+		become_user: soaruser
+		shell: "/tmp/phantom_tar_install.sh install"
+	```
 	
 	```ansible-playbook -i hosts.yaml fdse_soar_installer.yaml```
 
