@@ -22,15 +22,30 @@ This ansible playbook installs Splunk SOAR on remote machines running Centos7.
 
 
 ## Instructions:
+- Clone repository to your directory
+	```
+	cd projects_directory
+	git clone link name_of_folder
+	cd name_of_folder
+	```
+
+- Create a new instance with i.e Nova EC2 with such parameters:
+	- Instance Type	m5.large for faster installing
+	- Storage 100 GiB
+	- OS centos 7
+
 - Copy your local ssh public key to the destination host(s):
   
 	```ssh-copy-id -i ~/.ssh/id_rsa.pub $USERNAME@$HOSTADDR``` 
 
-
 - Set hosts file
+	Add the address of the host(s) and ansible user (i.e soaruser) to the included `hosts.yaml` file.
 
-	Add the address of the host(s) to the included `hosts.yaml` file.
-
+- Set vars file
+	- Go to [phantom-downloader](https://my.phantom.us/downloads/) and copy link to SOAR version which you need
+		- Hint! - remember that token for link expired after ~10min
+	- Paste this link to soar_download_url
+	- Enter password
 
 - Run the playbook
 
