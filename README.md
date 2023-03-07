@@ -63,4 +63,4 @@ This ansible playbook installs Splunk SOAR on remote machines running Centos7.
 - Wait for it :)
 
 	By default, SOAR will run on port 8443 over HTTPS.
-	The *default login credentials* are `admin/password`
+	The *default login credentials* are `admin/password`, for version 6.0.0 and higher `soar_local_admin/password`
