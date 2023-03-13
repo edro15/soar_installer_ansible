@@ -48,6 +48,7 @@
           - libxml2
           - libcurl
           - gnutls
+          - telnet
         state: latest
 
     - name: Create Unprivileged user for SOAR
@@ -89,11 +90,13 @@
       shell: "sysctl --system"  
       register: patchresult
     
-    - name: Install python passlib module
+    - name: Install required or useful python modules
       become: yes
       become_user: root
       ansible.builtin.pip:
-        name: passlib
+        name:
+          - passlib
+          - rpdb
         executable: pip3
 
     - name: Download phantom tar package
