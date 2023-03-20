@@ -46,17 +46,9 @@ This ansible playbook installs Splunk SOAR on remote machines running Centos7.
 		- Hint! - remember that token for link expired after ~10min
 	- Paste this link to soar_download_url
 	- Enter password
+	- Enter version of SOAR as a Numeric value
 
 - Run the playbook
-
-	 - Hint! - be aware what version of SOAR are you installing, if this is under 5.3v `Run installer` task should look like that:
-
-	```bash
-	 - name: Run installer
-		become: yes
-		become_user: soaruser
-		shell: "/tmp/phantom_tar_install.sh install"
-	```
 	
 	```ansible-playbook -i hosts.yaml fdse_soar_installer.yaml```
 
