@@ -58,16 +58,16 @@
       become: yes
       become_user: root
       ansible.builtin.user:
-        name: soaruser
+        name: phantom
         comment: Splunk SOAR user
-        password: "{{ vars.soaruser_password | password_hash('sha512') }}"
+        password: "{{ vars.phantom_user_password | password_hash('sha512') }}"
         create_home: true
 
-    - name: Add soaruser to group wheel
+    - name: Add phantom user to group wheel
       become: yes
       become_user: root
       ansible.builtin.user:
-        name: soaruser
+        name: phantom
         groups: wheel
         append: yes
 
@@ -84,12 +84,12 @@
       ansible.builtin.file:
         path: /opt/soar
         state: directory
-        owner: soaruser
+        owner: phantom
         mode: '0755'
 
     - name: check openssl existence
       become: yes
-      become_user: soaruser
+      become_user: phantom
       shell: "openssl version"
       changed_when: false
       failed_when: false
@@ -154,14 +154,14 @@
 
     - name: Download phantom tar package
       become: yes
-      become_user: soaruser
+      become_user: phantom
       ansible.builtin.get_url:
         url: '{{ vars.soar_download_url }}'
         dest: /tmp/phantom.tar
 
     - name: extract phantom tar package
       become: yes
-      become_user: soaruser
+      become_user: phantom
       ansible.builtin.unarchive:
         remote_src: true
         src: /tmp/phantom.tar
@@ -169,14 +169,14 @@
 
     - name: Run installer SOAR < 5.3v
       become: yes
-      become_user: soaruser
+      become_user: phantom
       shell: "/tmp/phantom_tar_install.sh install --https-port=8443"
       when: 
         - vars.soar_version < 5.3
     
     - name: Run installer SOAR >= 5.3v
       become: yes
-      become_user: soaruser
+      become_user: phantom
       shell:  "/tmp/splunk-soar/soar-install --splunk-soar-home /opt/soar/ --ignore-warnings -y"
       when: 
         - vars.soar_version >= 5.3
