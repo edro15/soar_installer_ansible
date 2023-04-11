@@ -1,2 +1,3 @@
 soar_download_url: <DOWNLOAD URL GOES HERE>
-soaruser_password: <soaruser PASSWD GOES HERE>
+phantom_user_password: <soaruser PASSWD GOES HERE>
+soar_version: <SOAR version in Numeric with a format as i.e 6.0, 5.2, 5.3>
