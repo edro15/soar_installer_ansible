@@ -1,58 +1,45 @@
-# soar_installer_ansible
-Ansible installation script for SOAR instances on CentOS7 hosts
+# SOAR Installer Ansible
+This ansible playbook installs Splunk SOAR on remote machines running Centos7
 
-## Introduction
-This ansible playbook installs Splunk SOAR on remote machines running Centos7.
+## Requirements
+On the remote machine:
+- CentOS 7
+- Internet access (to download the SOAR image)
 
-## Requirements:
-- OS: CentOS 7
-- Internet access on the remote machine (to download the SOAR image)
-- Set the required parameters/variables in:
+On your local machine:
+- Ansible installed
 
-	hosts.yaml:
+	`brew install ansible` for OSX
 
-		remote host username (can also be passed via the CLI)
-
-
-	vars.yaml:
-
-		- SOAR image URL (get the "authenticated" download link from: https://my.phantom.us/downloads/)
-		- desired password for `soaruser`: default is `soaruser`
-	
-
-
-## Instructions:
+## Usage
 - Clone repository to your directory
-	```
-	cd projects_directory
-	git clone link name_of_folder
-	cd name_of_folder
-	```
 
-- Create a new instance with i.e Nova EC2 with such parameters:
-	- Instance Type	m5.large for faster installing
+- Create a new instance with i.e Nova EC2 with such parameters
+	- Instance Type	`m5.large` for faster installing
 	- Storage 100 GiB
-	- OS centos 7
+	- OS CentOS 7
 
-- Copy your local ssh public key to the destination host(s):
-  
+- Copy your local ssh public key to the destination host(s)
+
 	```ssh-copy-id -i ~/.ssh/id_rsa.pub $USERNAME@$HOSTADDR``` 
 
-- Set hosts file
-	Add the address of the host(s) and ansible user (i.e soaruser) to the included `hosts.yaml` file.
+- Set hosts file `hosts.yaml`
+	- Add the address of the host(s) and ansible user (i.e soaruser)
+	- Add the address of the host(s) and the user (i.e splunker for NOVA)
 
-- Set vars file
-	- Go to [phantom-downloader](https://my.phantom.us/downloads/) and copy link to SOAR version which you need
-		- Hint! - remember that token for link expired after ~10min
-	- Paste this link to soar_download_url
-	- Enter password
-	- Enter version of SOAR as a Numeric value with a format as i.e 6.0, 5.2, 5.3
+- Set vars file `vars.yaml`
+	- Go to [phantom-downloader](https://my.phantom.us/downloads/), authenticate, and copy the link to SOAR version which you need to install
+		> Remember that token for link expires after ~10min
+	- Paste this link to `soar_download_url`
+	- Enter desired password for your user (e.g. soaruser) to `phantom_user_password`
+	- Enter version of SOAR as a Numeric value with a format as i.e 6.0, 5.2, 5.3 to `soar_version`
 
 - Run the playbook
-	
+
 	```ansible-playbook -i hosts.yaml fdse_soar_installer.yaml```
 
-- Wait for it :)
+- Wait for it :smile:
 
-	By default, SOAR will run on port 8443 over HTTPS.
-	The *default login credentials* are `admin/password`, for version 6.0.0 and higher `soar_local_admin/password`
+
+>	- By default, SOAR will run on port 8443 over HTTPS.
+>	- The *default login credentials* are `admin/password`. For version 6.0.0 and higher: `soar_local_admin/password`
