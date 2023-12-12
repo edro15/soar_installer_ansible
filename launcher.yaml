@@ -1,0 +1,4 @@
+- name: "SOAR Installer Launcher"
+  hosts: all
+  roles:
+    - soar

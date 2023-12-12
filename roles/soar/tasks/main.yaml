@@ -1,0 +1,136 @@
+# - name: Print message
+#   ansible.builtin.debug:
+#     msg: Testing {{ vars.ansible_user }} {{ vars.soar_download_url }} {{ vars.soar_version }}
+
+- name: Disabling SELinux state
+  become: yes
+  become_user: root
+  selinux:
+    state: disabled
+
+- name: Make sure OS is updated
+  become: yes
+  become_user: root
+  shell: yum clean all
+
+- name: Upgrade all packages
+  become: yes
+  become_user: root
+  ansible.builtin.yum:
+    name: '*'
+    state: latest
+
+- name: Install basic admin tools
+  ansible.builtin.yum:
+    name: yum-utils
+    state: latest
+
+- name: Check if reboot_required
+  shell:
+    cmd: "needs-restarting -r"
+  changed_when: false
+  failed_when: reboot_required.rc != 0 and reboot_required.rc != 1
+  check_mode: false
+  register: reboot_required
+
+- name: Reboot
+  tags: reboot
+  become: yes
+  become_user: root
+  shell: "sleep 5 && reboot"
+  async: 1
+  poll: 0
+  when: reboot_required.rc == 1
+
+- name: Wait 300 seconds, but only start checking after 20 seconds
+  ansible.builtin.wait_for_connection:
+    delay: 20
+    timeout: 300
+  when: reboot_required.rc == 1
+
+- name: Check for Python
+  shell: python3 --version
+  changed_when: false
+  failed_when: false
+  register: check_python
+
+- name: Install python and pip3
+  become: yes
+  become_user: root
+  ansible.builtin.yum:
+    name:
+      - python36
+    state: present
+  when: check_python.rc != 0
+
+- name: Create SOAR installation folder
+  become: yes
+  ansible.builtin.file:
+    path: /opt/soar
+    state: directory
+    mode: '0755'
+
+- name: Download SOAR tgz package
+  become: yes
+  become_user: '{{ vars.ansible_user }}'
+  ansible.builtin.get_url:
+    url: '{{ vars.soar_download_url }}'
+    dest: '/tmp/soar.tgz'
+
+- name: Create folder for SOAR package extraction (to support v5.3.1)
+  become: yes
+  become_user: '{{ vars.ansible_user }}'
+  ansible.builtin.file:
+    path: '/tmp/soar-installer'
+    state: directory
+    mode: '0755'
+
+- name: Extract SOAR tgz package
+  become: yes
+  become_user: '{{ vars.ansible_user }}'
+  ansible.builtin.unarchive:
+    remote_src: true
+    src: '/tmp/soar.tgz'
+    dest: '/tmp/soar-installer'
+    # creates: '{{ ansible_env.HOME }}/soar-installer/splunk-soar'
+    list_files: true
+  register: archive_content
+
+- name: Set path to extracted files (to support v5.3.1)
+  ansible.builtin.set_fact:
+    # archive_content.files[0] returns the top folder in the archive (e.g. './' or 'splunk-soar/')
+    files_path: "/soar-installer{{ archive_content.files[0] | replace('.', '') | replace('spl', '/spl') }}"
+
+- name: Run system setup for SOAR
+  become: yes
+  become_user: '{{ vars.ansible_user }}'
+  shell:  "sudo /tmp{{ files_path }}soar-prepare-system --splunk-soar-home /opt/soar --https-port 8443 --no-prompt"
+
+- name: Add phantom user to group wheel
+  become: yes
+  become_user: root
+  ansible.builtin.user:
+    name: phantom
+    groups: wheel
+    append: yes
+
+- name: Set phantom user password
+  become: yes
+  become_user: root
+  ansible.builtin.user:
+    name: phantom
+    password: '{{ vars.phantom_user_password | password_hash('sha512') }}'
+
+- name: Change installation folder file permission
+  become: yes
+  become_user: root
+  file:
+    path: '/tmp{{ files_path }}'
+    recurse: yes
+    owner: phantom
+    group: phantom
+
+- name: Run installer SOAR
+  become: yes
+  become_user: phantom
+  shell:  "/tmp{{ files_path }}soar-install --splunk-soar-home /opt/soar/ --ignore-warnings --no-prompt"

@@ -1,0 +1,21 @@
+group_531:
+  hosts:
+    <HOST ADDRESS GOES HERE>
+    <HOST ADDRESS GOES HERE>
+  vars:
+    soar_download_url: <DOWNLOAD URL GOES HERE>
+    soar_version: 5.3.1
+group_610:
+  hosts:
+    <HOST ADDRESS GOES HERE>
+    <HOST ADDRESS GOES HERE>
+  vars:
+    soar_download_url: <DOWNLOAD URL GOES HERE>
+    soar_version: 6.1.0
+group_620:
+  hosts:
+    <HOST ADDRESS GOES HERE>
+    <HOST ADDRESS GOES HERE>
+  vars:
+    soar_download_url: <DOWNLOAD URL GOES HERE>
+    soar_version: 6.2.0
